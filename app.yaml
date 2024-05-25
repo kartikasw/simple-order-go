@@ -1,0 +1,12 @@
+database:
+  host: "localhost"
+  port: 2024
+  name: "simple-order-go"
+  user: "admin"
+  password: "secret"
+  sslmode: "disable"
+  timezone: "Asia/Jakarta"
+
+app:
+  port: 8080
+  host: "localhost"
