@@ -3,9 +3,9 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"simple-order-go/common"
 	"simple-order-go/internal/entity"
 	"simple-order-go/internal/service"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx"
@@ -36,7 +36,7 @@ func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
 		return
 	}
 
-	t, err := time.Parse("2006-01-02T15:04:05-07:00", req.OrderedAt)
+	t, err := common.ParseStringToTime(req.OrderedAt)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -114,7 +114,7 @@ func (h *OrderHandler) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 
-	t, err := time.Parse("2006-01-02T15:04:05-07:00", req.OrderedAt)
+	t, err := common.ParseStringToTime(req.OrderedAt)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

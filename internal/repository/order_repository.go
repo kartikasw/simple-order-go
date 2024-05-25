@@ -24,12 +24,16 @@ func NewOrderRepository(db *gorm.DB) *OrderRepository {
 }
 
 func (r *OrderRepository) CreateOrder(order entity.Order) (entity.Order, error) {
-	err := r.db.Create(&order).Error
-	if err != nil {
-		return entity.Order{}, err
-	}
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		err := r.db.Create(&order).Error
+		if err != nil {
+			return err
+		}
 
-	return order, nil
+		return nil
+	})
+
+	return order, err
 }
 
 func (r *OrderRepository) GetOrder(orderID int64) (order entity.Order, err error) {
