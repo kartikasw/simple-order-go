@@ -10,12 +10,12 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func InitDB(d cfg.Database) (*gorm.DB, error) {
-	dsn := "host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s"
+const DSN = "host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s"
 
+func InitDB(d cfg.Database) (*gorm.DB, error) {
 	db, err := gorm.Open(
 		postgres.Open(fmt.Sprintf(
-			dsn,
+			DSN,
 			d.Host,
 			d.User,
 			d.Password,

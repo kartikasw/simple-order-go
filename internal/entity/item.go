@@ -11,7 +11,7 @@ type ItemViewModels []ItemViewModel
 type Item struct {
 	ID          int64     `gorm:"primary_key;column:id;autoIncrement"`
 	Name        string    `gorm:"column:name"`
-	Description string    `gorm:"column:description;unique;<-:create"`
+	Description string    `gorm:"index;column:description"`
 	Quantity    int32     `gorm:"column:quantity"`
 	OrderID     int64     `gorm:"index;column:order_id"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;autoCreateTime;autoUpdateTime"`

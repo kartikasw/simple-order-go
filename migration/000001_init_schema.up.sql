@@ -9,7 +9,7 @@ CREATE TABLE "orders" (
 CREATE TABLE "items" (
   "id" bigserial PRIMARY KEY,
   "name" varchar NOT NULL,
-  "description" varchar NOT NULL UNIQUE,
+  "description" varchar NOT NULL,
   "quantity" int NOT NULL,
   "order_id" bigserial NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -19,3 +19,5 @@ CREATE TABLE "items" (
 ALTER TABLE "items" ADD FOREIGN KEY ("order_id") REFERENCES "orders" ("id") ON DELETE CASCADE;
 
 CREATE INDEX ON "items" ("order_id");
+
+CREATE INDEX ON "items" ("description");
