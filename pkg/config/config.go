@@ -26,6 +26,7 @@ type App struct {
 func NewApp(v *viper.Viper) App {
 	return App{
 		Port: v.GetInt("app.port"),
+		Host: v.GetString("app.host"),
 	}
 }
 

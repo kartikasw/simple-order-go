@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"simple-order-go/pkg/config"
+	"strconv"
 	"testing"
 
 	database "simple-order-go/pkg/db"
@@ -22,24 +23,15 @@ var (
 func TestMain(m *testing.M) {
 	cfg := config.LoadConfig("../../app.yaml")
 
-	setUpDocketTestEnv(cfg)
-	connectToDB()
+	setUpDatabase(cfg)
+
+	// setUpDocketTestEnv(cfg)
 
 	test := m.Run()
 
-	tearDownDockerTestEnv()
+	// tearDownDockerTestEnv()
 
 	os.Exit(test)
-}
-
-func connectToDB() {
-	cfg := config.LoadConfig("../../app.yaml")
-	testDB, err := database.InitDB(cfg.Database)
-	if err != nil {
-		log.Fatal("Couldn't connect to DB: ", err)
-	}
-
-	testOrderRepo = NewOrderRepository(testDB)
 }
 
 func setUpDocketTestEnv(cfg config.Config) {
@@ -60,6 +52,7 @@ func setUpDocketTestEnv(cfg config.Config) {
 			fmt.Sprintf("POSTGRES_USER=%s", cfg.Database.User),
 			fmt.Sprintf("POSTGRES_PASSWORD=%s", cfg.Database.Password),
 			fmt.Sprintf("POSTGRES_DB=%s", cfg.Database.Name),
+			"POSTGRES_HOST_AUTH_METHOD=trust",
 			"listen_addresses = '*'",
 		},
 	}, func(config *docker.HostConfig) {
@@ -73,22 +66,34 @@ func setUpDocketTestEnv(cfg config.Config) {
 		log.Fatal("Couldn't start resource: ", err)
 	}
 
-	resource.Expire(120)
+	rcPort := resource.GetPort("5432/tcp")
+	port, err := strconv.Atoi(rcPort)
+	if err != nil {
+		log.Fatal("Couldn't set port")
 
-	resource.GetPort(fmt.Sprintf("tcp://%s:%d", cfg.Database.Host, cfg.Database.Port))
+	}
+	cfg.Database.Port = port
 
 	if err := pool.Retry(func() error {
-		var err error
-		_, err = database.InitDB(cfg.Database)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return setUpDatabase(cfg)
 	}); err != nil {
-		tearDownDockerTestEnv()
 		log.Fatal("Couldn't connect to DB: ", err)
 	}
+}
+
+func setUpDatabase(cfg config.Config) error {
+
+	testDB, err := database.InitDB(cfg.Database)
+	if err != nil {
+		return err
+	}
+
+	// testDB.AutoMigrate(&entity.Order{})
+	// testDB.AutoMigrate(&entity.Item{})
+
+	testOrderRepo = NewOrderRepository(testDB)
+
+	return nil
 }
 
 func tearDownDockerTestEnv() {

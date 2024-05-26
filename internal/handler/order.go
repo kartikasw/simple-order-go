@@ -20,17 +20,25 @@ func NewOrderHandler(orderService service.IOrderService) *OrderHandler {
 }
 
 type orderRequest struct {
-	CustomerName string `json:"customerName" binding:"required"`
-	OrderedAt    string `json:"orderedAt" binding:"required"`
-	Items        []struct {
-		Name     string `json:"name" binding:"required"`
-		Desc     string `json:"description" binding:"required"`
-		Quantity int32  `json:"quantity" binding:"required,gt=0"`
-	} `json:"items" binding:"required,gt=0,dive"`
+	CustomerName string        `json:"customerName" binding:"required"`
+	OrderedAt    string        `json:"orderedAt" binding:"required"`
+	Items        []itemRequest `json:"items" binding:"dive"`
+}
+
+type requiredOrderRequest struct {
+	CustomerName string        `json:"customerName" binding:"required"`
+	OrderedAt    string        `json:"orderedAt" binding:"required"`
+	Items        []itemRequest `json:"items" binding:"required,gt=0,dive"`
+}
+
+type itemRequest struct {
+	Name     string `json:"name" binding:"required"`
+	Desc     string `json:"description" binding:"required"`
+	Quantity int32  `json:"quantity" binding:"required,gt=0"`
 }
 
 func (h *OrderHandler) CreateOrder(ctx *gin.Context) {
-	var req orderRequest
+	var req requiredOrderRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

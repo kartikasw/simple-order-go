@@ -14,7 +14,7 @@ func createRandomOrder(t *testing.T) entity.Order {
 	items := make([]entity.Item, n)
 
 	for i := 1; 1 <= n; i++ {
-		items = append(items, createRandomItem())
+		items[i] = createRandomItem()
 	}
 
 	arg := entity.Order{
@@ -76,7 +76,7 @@ func TestUpdateOrder(t *testing.T) {
 	firstItemNames := make(chan string, n)
 	results := make(chan entity.Order, n)
 
-	for i := 0; i < n; i++ {
+	for i := 1; i <= n; i++ {
 		order := createRandomOrder(t)
 
 		go func(entity.Order) {
